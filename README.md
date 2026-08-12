@@ -4,7 +4,7 @@ A Python-based **AI-powered Crowd Management and Monitoring System** that uses c
 
 ## 🎥 Demo Video
 
-<video src="./demo.mp4" controls width="100%"></video>
+<video src="[./demo.mp4](https://github.com/coderharshith/crowd-management-system-ml/blob/main/demo.mp4)" controls ></video>
 
 **Demo:** `demo.mp4`
 
@@ -52,11 +52,6 @@ It also provides a web-based dashboard for monitoring and managing the system.
 ### 🎥 Video Monitoring
 The system supports video-based monitoring.
 
-You can provide a video such as:
-
-```text
-demo.mp4
-```
 
 The video is processed frame-by-frame for:
 
@@ -229,16 +224,6 @@ When the dashboard opens:
 The supplied run instructions follow this login → dashboard → monitoring flow.
 
 ---
-
-# 🎥 How to Use a Video
-
-You can use a video such as:
-
-```text
-demo.mp4
-```
-
-The video can be placed in the project directory or selected through the application's video-upload/monitoring functionality, depending on the configured workflow.
 
 ### Monitoring Flow
 
