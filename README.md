@@ -4,7 +4,7 @@ A Python-based **AI-powered Crowd Management and Monitoring System** that uses c
 
 ## 🎥 Demo Video
 
-<video src="[./demo.mp4](https://github.com/coderharshith/crowd-management-system-ml/blob/main/demo.mp4)" controls ></video>
+<video src="https://github.com/coderharshith/crowd-management-system-ml/blob/main/demo.mp4" controls ></video>
 
 **Demo:** `demo.mp4`
 
