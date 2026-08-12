@@ -8,12 +8,8 @@ cd backend
 
 python dashboard_app.py
 
-
-
 Open your browser and go to: `http://localhost:5000`
 
-
 Create a new account or login
-
 
 Start monitoring from the dashboard
