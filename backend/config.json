@@ -1,0 +1,73 @@
+{
+    "camera_settings": {
+        "camera_index": 1,
+        "width": 1920,
+        "height": 1080,
+        "fps": 30
+    },
+    "detection_settings": {
+        "model_path": "yolov8s.pt",
+        "confidence_threshold": 0.5,
+        "grid_size": {
+            "rows": 3,
+            "cols": 3
+        }
+    },
+    "zone_thresholds": {
+        "low": 3,
+        "medium": 6,
+        "high": 10
+    },
+    "server_settings": {
+        "host": "0.0.0.0",
+        "port": 5000,
+        "debug": true
+    },
+    "alert_settings": {
+        "enable_sound": true,
+        "log_file": "alerts_log.txt",
+        "beep_frequency": 1000,
+        "beep_duration": 500
+    },
+    "threshold_filter": {
+        "enabled": false,
+        "min_count": 0,
+        "max_count": 100
+    },
+    "social_distancing": {
+        "enabled": true,
+        "min_distance_pixels": 50,
+        "alert_on_violation": true,
+        "draw_violation_lines": true
+    },
+    "abnormal_activity": {
+        "enabled": true,
+        "velocity_threshold": 100,
+        "crowd_rush_threshold": 5,
+        "sudden_movement_threshold": 80,
+        "loitering_time_seconds": 300
+    },
+    "gate_control": {
+        "enabled": true,
+        "auto_close_threshold": 2,
+        "auto_open_threshold": 1,
+        "manual_override": true,
+        "gates": [
+            {
+                "id": "gate_entry",
+                "name": "Entry Gate",
+                "status": "open"
+            },
+            {
+                "id": "gate_exit",
+                "name": "Exit Gate",
+                "status": "open"
+            }
+        ]
+    },
+    "restricted_zones": {
+        "enabled": true,
+        "alert_on_entry": true,
+        "zones": []
+    }
+}

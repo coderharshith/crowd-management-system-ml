@@ -1,0 +1,1761 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Live Monitoring - Crowd Monitoring</title>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: radial-gradient(
+          1200px 600px at 10% 10%,
+          #050606 0%,
+          #050709 30%,
+          #070a0b 100%
+        );
+        min-height: 100vh;
+        color: #e6efe9;
+      }
+      .navbar {
+        background: rgba(8, 10, 8, 0.9);
+        padding: 1rem 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .nav-container {
+        max-width: 1600px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0 2rem;
+      }
+      .logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: #7ee3b4;
+      }
+      .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+      }
+      .btn {
+        padding: 0.5rem 1.25rem;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.18s ease;
+        color: #e6efe9;
+        background: transparent;
+      }
+      .btn-outline {
+        border: 1px solid rgba(16, 185, 129, 0.9);
+        color: #bff7df;
+        background: rgba(16, 185, 129, 0.06);
+      }
+      .btn-outline:hover {
+        background: linear-gradient(
+          90deg,
+          rgba(16, 185, 129, 0.12),
+          rgba(5, 150, 105, 0.12)
+        );
+        color: white;
+        transform: translateY(-2px);
+      }
+      .container {
+        max-width: 1600px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .header {
+        text-align: center;
+        margin-bottom: 2rem;
+        color: #333;
+      }
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+        background: linear-gradient(90deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+      .header p {
+        color: #999;
+        font-size: 1.1rem;
+      }
+
+      /* Side-by-side layout */
+      .main-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+        align-items: start;
+      }
+
+      .video-container {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 1.5rem;
+        border-radius: 16px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .video-feed {
+        width: 100%;
+        height: auto;
+        border: 3px solid rgba(255, 255, 255, 0.04);
+        border-radius: 12px;
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      }
+      .video-wrapper {
+        position: relative;
+        display: inline-block;
+        width: 100%;
+      }
+      .video-wrapper canvas {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        border-radius: 12px;
+      }
+      .video-wrapper canvas.draw-active {
+        pointer-events: auto;
+        cursor: crosshair;
+      }
+      .video-error {
+        padding: 3rem;
+        background: rgba(255, 255, 255, 0.02);
+        border: 2px dashed rgba(255, 255, 255, 0.1);
+        border-radius: 15px;
+        text-align: center;
+        color: #999;
+      }
+      .video-error i {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+        color: #666;
+      }
+
+      .controls {
+        text-align: center;
+        margin: 1.5rem 0;
+      }
+      .control-btn {
+        padding: 0.8rem 1.8rem;
+        margin: 0 0.5rem;
+        border: none;
+        border-radius: 15px;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .btn-start {
+        background: linear-gradient(45deg, #10b981, #059669);
+        color: white;
+      }
+      .btn-stop {
+        background: linear-gradient(45deg, #dc3545, #fd7e14);
+        color: white;
+      }
+      .btn-refresh {
+        background: linear-gradient(45deg, #16a34a, #059669);
+        color: white;
+      }
+      .control-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      }
+
+      .zone-grid {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 1rem;
+        border-radius: 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        display: flex;
+        flex-direction: column;
+        max-height: 600px;
+      }
+      .zone-grid h3 {
+        margin-bottom: 0.8rem;
+        color: #e6efe9;
+        font-size: 1.1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-shrink: 0;
+      }
+      .zone-grid-info {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+        flex-shrink: 0;
+      }
+      .zones-scroll {
+        overflow-y: auto;
+        flex: 1;
+        min-height: 0;
+        padding-right: 4px;
+      }
+      .zones-scroll::-webkit-scrollbar {
+        width: 6px;
+      }
+      .zones-scroll::-webkit-scrollbar-track {
+        background: rgba(255,255,255,0.02);
+        border-radius: 3px;
+      }
+      .zones-scroll::-webkit-scrollbar-thumb {
+        background: rgba(16,185,129,0.3);
+        border-radius: 3px;
+      }
+      .zones-scroll::-webkit-scrollbar-thumb:hover {
+        background: rgba(16,185,129,0.5);
+      }
+      .zones {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 0.5rem;
+      }
+      .zone {
+        padding: 0.5rem 0.3rem;
+        border-radius: 10px;
+        text-align: center;
+        font-weight: bold;
+        color: white;
+        transition: all 0.2s;
+        cursor: pointer;
+        position: relative;
+        font-size: 0.8rem;
+        min-width: 0;
+      }
+      .zone:hover {
+        transform: scale(1.05);
+        z-index: 1;
+      }
+      .zone.low {
+        background: linear-gradient(45deg, #10b981, #059669);
+      }
+      .zone.medium {
+        background: linear-gradient(45deg, #ffc107, #fd7e14);
+      }
+      .zone.high {
+        background: linear-gradient(45deg, #fd7e14, #dc3545);
+      }
+      .zone.critical {
+        background: linear-gradient(45deg, #dc3545, #6f42c1);
+        animation: pulse 1s infinite;
+      }
+      .zone.restricted {
+        border: 2px solid #ff0000;
+        box-shadow: 0 0 12px rgba(255, 0, 0, 0.5);
+      }
+      .zone.restricted::after {
+        content: "🚫";
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        font-size: 0.55rem;
+        background: rgba(255, 0, 0, 0.9);
+        padding: 1px 3px;
+        border-radius: 3px;
+      }
+      @keyframes pulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(1.02);
+        }
+      }
+
+      .dashboard-bottom {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+        margin-top: 2rem;
+      }
+      .stats {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 1.6rem;
+        border-radius: 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+      }
+      .stats h3 {
+        margin-bottom: 1.5rem;
+        color: #e6efe9;
+        font-size: 1.3rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .total-count {
+        font-size: 3rem;
+        font-weight: bold;
+        background: linear-gradient(45deg, #10b981, #059669);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-align: center;
+        margin: 2rem 0;
+      }
+      .count-label {
+        text-align: center;
+        color: #999;
+        font-size: 1.1rem;
+        margin-bottom: 2rem;
+      }
+      .alerts {
+        max-height: 250px;
+        overflow-y: auto;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        padding: 1rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 15px;
+      }
+      .alert-item {
+        padding: 0.75rem;
+        margin: 0.5rem 0;
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 4px solid #dc3545;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      }
+      .status {
+        text-align: center;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 15px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+      .status.connected {
+        background: linear-gradient(
+          45deg,
+          rgba(16, 185, 129, 0.2),
+          rgba(5, 150, 105, 0.2)
+        );
+        color: #10b981;
+        border: 1px solid rgba(16, 185, 129, 0.3);
+      }
+      .status.disconnected {
+        background: linear-gradient(
+          45deg,
+          rgba(220, 53, 69, 0.2),
+          rgba(253, 126, 20, 0.2)
+        );
+        color: #dc3545;
+        border: 1px solid rgba(220, 53, 69, 0.3);
+      }
+
+      /* Enhanced Features Panel */
+      .features-panel {
+        background: linear-gradient(
+          180deg,
+          rgba(255, 255, 255, 0.02),
+          rgba(255, 255, 255, 0.01)
+        );
+        padding: 1.6rem;
+        border-radius: 14px;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        margin-top: 2rem;
+      }
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 1rem;
+      }
+      .feature-box {
+        background: rgba(255, 255, 255, 0.03);
+        padding: 1.2rem;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .feature-box h4 {
+        color: #10b981;
+        margin-bottom: 0.8rem;
+        font-size: 1.1rem;
+      }
+      .feature-toggle {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin: 0.5rem 0;
+      }
+      .slider-container {
+        margin: 1rem 0;
+      }
+      .slider-container label {
+        display: block;
+        color: #999;
+        font-size: 0.9rem;
+        margin-bottom: 0.3rem;
+      }
+      .slider-container input[type="range"] {
+        width: 100%;
+      }
+      .gate-status {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.8rem;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 8px;
+        margin: 0.5rem 0;
+      }
+      .gate-btn {
+        padding: 0.4rem 0.8rem;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+      }
+      .gate-btn.open {
+        background: #10b981;
+        color: white;
+      }
+      .gate-btn.close {
+        background: #dc3545;
+        color: white;
+      }
+
+      @media (max-width: 1200px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+        .dashboard-bottom {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 768px) {
+        .nav-container {
+          padding: 0 1rem;
+          flex-direction: column;
+          gap: 1rem;
+        }
+        .header h1 {
+          font-size: 2rem;
+        }
+        .control-btn {
+          display: block;
+          margin: 0.5rem 0;
+          width: 100%;
+          max-width: 300px;
+        }
+        .zones {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+      @media (max-width: 480px) {
+        .zones {
+          grid-template-columns: 1fr;
+        }
+        .container {
+          padding: 1rem;
+        }
+      }
+      .loading {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        border-top-color: white;
+        animation: spin 1s ease-in-out infinite;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ===== GATE STATUS BAR ===== */
+      #gateStatusBar {
+        background: rgba(8,10,8,0.95);
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        padding: 0.55rem 2rem;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        position: sticky;
+        top: 61px;
+        z-index: 900;
+        backdrop-filter: blur(10px);
+        transition: background 0.4s;
+      }
+      #gateStatusBar.threshold-alert {
+        background: rgba(30,5,5,0.97);
+        border-bottom-color: rgba(220,53,69,0.4);
+      }
+      .gate-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.35rem 0.9rem;
+        border-radius: 999px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        transition: all 0.35s ease;
+        border: 1.5px solid transparent;
+      }
+      .gate-pill.open {
+        background: rgba(16,185,129,0.12);
+        border-color: rgba(16,185,129,0.5);
+        color: #10b981;
+      }
+      .gate-pill.closed {
+        background: rgba(220,53,69,0.15);
+        border-color: rgba(220,53,69,0.6);
+        color: #f87171;
+        animation: gatePulse 1.2s ease-in-out infinite;
+      }
+      @keyframes gatePulse {
+        0%,100% { box-shadow: 0 0 0 0 rgba(220,53,69,0.0); }
+        50% { box-shadow: 0 0 0 6px rgba(220,53,69,0.25); }
+      }
+      .gate-dot {
+        width: 9px; height: 9px;
+        border-radius: 50%;
+        display: inline-block;
+        flex-shrink: 0;
+      }
+      .gate-pill.open .gate-dot { background: #10b981; }
+      .gate-pill.closed .gate-dot { background: #f87171; animation: dotBlink 0.8s step-start infinite; }
+      @keyframes dotBlink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+      .threshold-bar-wrap {
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+        margin-left: auto;
+        font-size: 0.78rem;
+        color: #888;
+        min-width: 220px;
+      }
+      .threshold-bar-track {
+        flex: 1;
+        height: 7px;
+        background: rgba(255,255,255,0.07);
+        border-radius: 999px;
+        overflow: hidden;
+        min-width: 100px;
+      }
+      .threshold-bar-fill {
+        height: 100%;
+        border-radius: 999px;
+        transition: width 0.5s ease, background 0.4s;
+        background: linear-gradient(90deg, #10b981, #059669);
+      }
+      .threshold-bar-fill.warning { background: linear-gradient(90deg, #fbbf24, #f59e0b); }
+      .threshold-bar-fill.danger  { background: linear-gradient(90deg, #ef4444, #dc2626); }
+
+      /* ===== TOAST NOTIFICATIONS ===== */
+      #toastContainer {
+        position: fixed;
+        top: 120px;
+        right: 1.5rem;
+        z-index: 9999;
+        display: flex;
+        flex-direction: column;
+        gap: 0.6rem;
+        pointer-events: none;
+      }
+      .toast {
+        background: rgba(15,15,20,0.97);
+        border-radius: 12px;
+        padding: 0.85rem 1.2rem;
+        min-width: 280px;
+        max-width: 360px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+        display: flex;
+        align-items: flex-start;
+        gap: 0.75rem;
+        pointer-events: auto;
+        animation: toastIn 0.35s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        border-left: 4px solid #10b981;
+        font-size: 0.88rem;
+      }
+      .toast.gate-closed { border-left-color: #ef4444; }
+      .toast.gate-opened { border-left-color: #10b981; }
+      .toast.threshold-hit { border-left-color: #f59e0b; }
+      .toast-icon { font-size: 1.3rem; flex-shrink: 0; margin-top: 1px; }
+      .toast-body strong { display: block; margin-bottom: 0.2rem; font-size: 0.92rem; }
+      .toast-body span { color: #aaa; }
+      @keyframes toastIn {
+        from { opacity:0; transform: translateX(40px) scale(0.9); }
+        to   { opacity:1; transform: translateX(0)  scale(1); }
+      }
+      @keyframes toastOut {
+        from { opacity:1; transform: translateX(0); }
+        to   { opacity:0; transform: translateX(40px); }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Toast container -->
+    <div id="toastContainer"></div>
+
+    <nav class="navbar">
+      <div class="nav-container">
+        <div class="logo" id="refreshLogo" style="cursor: pointer">
+          <i class="fas fa-video"></i> Crowd Monitoring
+        </div>
+        <div class="user-info" style="gap: 0.5rem; align-items: center">
+          <a
+            href="{{ url_for('index') }}"
+            class="btn btn-outline"
+            style="white-space: nowrap"
+            ><i class="fas fa-satellite-dish"></i> Live Monitoring</a
+          >
+          <a
+            href="{{ url_for('video_upload') }}"
+            class="btn btn-outline"
+            style="white-space: nowrap"
+            ><i class="fas fa-upload"></i> Video Upload</a
+          >
+          <a
+            href="{{ url_for('gate_control_page') }}"
+            class="btn btn-outline"
+            style="white-space: nowrap; border-color: rgba(239,68,68,0.6); color:#fca5a5; background:rgba(239,68,68,0.07);"
+            ><i class="fas fa-door-open"></i> Gate Control</a
+          >
+          <span style="color: #999">Welcome, {{ session.username }}!</span>
+          <a href="{{ url_for('logout') }}" class="btn btn-outline"
+            ><i class="fas fa-sign-out-alt"></i> Logout</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Real-time Gate Status Bar -->
+    <div id="gateStatusBar">
+      <span style="font-size:0.78rem;color:#666;font-weight:600;letter-spacing:0.05em;text-transform:uppercase;"><i class="fas fa-door-open" style="margin-right:0.4rem;"></i>Gates</span>
+      <div id="gatePills" style="display:flex;gap:0.5rem;flex-wrap:wrap;"></div>
+      <div class="threshold-bar-wrap" id="thresholdBarWrap" style="display:none;">
+        <span id="thresholdLabel">Count: 0 / 2</span>
+        <div class="threshold-bar-track">
+          <div class="threshold-bar-fill" id="thresholdBarFill" style="width:0%;"></div>
+        </div>
+        <span id="thresholdPct" style="font-size:0.72rem;min-width:32px;text-align:right;">0%</span>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="header">
+        <h1><i class="fas fa-chart-line"></i> Live Monitoring Dashboard</h1>
+        <p>Real-time crowd density analysis with AI-powered zone detection</p>
+      </div>
+
+      <div class="status" id="status">
+        <i class="fas fa-circle"></i> Camera Ready - Click Start Camera to begin
+        monitoring
+      </div>
+
+      <div class="controls">
+        <button
+          class="control-btn btn-start"
+          onclick="startCamera()"
+          id="startBtn"
+        >
+          <i class="fas fa-play"></i> Start Camera
+        </button>
+        <button
+          class="control-btn btn-stop"
+          onclick="stopCamera()"
+          id="stopBtn"
+        >
+          <i class="fas fa-stop"></i> Stop Camera
+        </button>
+        <button
+          class="control-btn btn-refresh"
+          onclick="refreshData()"
+          id="refreshBtn"
+        >
+          <i class="fas fa-sync-alt"></i> Refresh Data
+        </button>
+        <button class="control-btn" onclick="toggleAudio()" id="audioBtn" style="background: linear-gradient(45deg, #3b82f6, #2563eb);">
+            <i class="fas fa-volume-up" id="audioIcon"></i> <span id="audioText">Audio: ON</span>
+        </button>
+        <button class="control-btn btn-stop" onclick="stopContinuousBeep()" id="stopBeepBtn" style="display:none;">
+            <i class="fas fa-bell-slash"></i> Stop Beep
+        </button>
+      </div>
+
+      <!-- Side-by-side layout: Video and Zone Grid -->
+      <div class="main-grid">
+        <div class="video-container">
+          <h3><i class="fas fa-camera"></i> Live Camera Feed</h3>
+          <div class="video-wrapper" id="videoWrapper">
+            <img
+              src=""
+              alt="Video Feed"
+              class="video-feed"
+              id="videoFeed"
+              onerror="
+                this.style.display = 'none';
+                document.getElementById('videoError').style.display = 'block';
+              "
+            />
+            <canvas id="circleCanvas"></canvas>
+          </div>
+          <div style="margin-top: 0.8rem; text-align: center;">
+            <button class="control-btn" onclick="toggleDrawMode()" id="drawModeBtn" style="background: linear-gradient(45deg, #ef4444, #dc2626); padding: 0.5rem 1.2rem;">
+              <i class="fas fa-pen" id="drawIcon"></i> <span id="drawText">Draw Circles</span>
+            </button>
+          </div>
+          <div id="circleCountIndicator" style="margin-top: 0.5rem; text-align: center; font-size: 1rem; color: #999; display: none;">
+            <i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i>
+            <span id="circleCountText">0 people in restricted area</span>
+          </div>
+          <div id="videoError" class="video-error" style="display: none">
+            <i class="fas fa-video-slash"></i>
+            <h4>Camera Not Active</h4>
+            <p>Click "Start Camera" to begin live monitoring</p>
+          </div>
+        </div>
+
+        <div class="zone-grid">
+          <h3>
+            <i class="fas fa-th"></i> Zone Status Grid
+          </h3>
+          <div class="zone-grid-info" id="zoneGridInfo"></div>
+          <div class="zones-scroll">
+            <div class="zones" id="zoneGrid"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard-bottom">
+        <div class="stats">
+          <h3><i class="fas fa-chart-bar"></i> Analytics & Alerts</h3>
+          <div class="total-count" id="totalCount">0</div>
+          <p class="count-label">
+            <i class="fas fa-users"></i> Total People Detected
+          </p>
+          <h4><i class="fas fa-bell"></i> Recent Alerts</h4>
+          <div class="alerts" id="alertsList">
+            <div style="text-align: center; color: #999; padding: 2rem">
+              <i class="fas fa-bell-slash"></i>
+              <p>No alerts yet</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <h3><i class="fas fa-filter"></i> Threshold Filter</h3>
+          <div class="feature-toggle">
+            <input
+              type="checkbox"
+              id="filterEnabled"
+              onchange="updateThresholdFilter()"
+            />
+            <label for="filterEnabled">Enable Filtering</label>
+          </div>
+          <div class="slider-container">
+            <label>Min Count: <span id="minCountValue">0</span></label>
+            <input
+              type="range"
+              id="minCount"
+              min="0"
+              max="50"
+              value="0"
+              oninput="updateThresholdFilter()"
+            />
+          </div>
+          <div class="slider-container">
+            <label>Max Count: <span id="maxCountValue">100</span></label>
+            <input
+              type="range"
+              id="maxCount"
+              min="1"
+              max="100"
+              value="100"
+              oninput="updateThresholdFilter()"
+            />
+          </div>
+          <div
+            style="
+              margin-top: 1rem;
+              padding: 1rem;
+              background: rgba(255, 255, 255, 0.02);
+              border-radius: 8px;
+            "
+          >
+            <small style="color: #999"
+              >Zones outside this range will be dimmed</small
+            >
+          </div>
+        </div>
+      </div>
+
+      <!-- Enhanced Features Panel -->
+      <div class="features-panel">
+        <h3><i class="fas fa-cogs"></i> Enhanced Features</h3>
+        <div class="features-grid">
+          <!-- Gate Control -->
+          <div class="feature-box" id="gateControlBox">
+            <h4><i class="fas fa-door-open"></i> Gate Control</h4>
+            <div id="gatesList"></div>
+            <button
+              class="control-btn btn-stop"
+              onclick="emergencyCloseAll()"
+              style="width: 100%; margin-top: 1rem; padding: 0.6rem"
+            >
+              <i class="fas fa-exclamation-triangle"></i> Emergency Close All
+            </button>
+          </div>
+
+          <!-- Restricted Circle -->
+          <div class="feature-box">
+            <h4><i class="fas fa-crosshairs"></i> Restricted Circle</h4>
+            <div
+              id="restrictedZonesList"
+              style="color: #999; font-size: 0.9rem"
+            >
+              Click & drag on the video feed to draw a restriction circle
+            </div>
+            <button
+              class="control-btn btn-refresh"
+              onclick="clearRestrictedCircle()"
+              style="width: 100%; margin-top: 1rem; padding: 0.6rem"
+            >
+              <i class="fas fa-eraser"></i> Clear Restriction
+            </button>
+          </div>
+
+          <!-- Social Distancing -->
+          <div class="feature-box">
+            <h4><i class="fas fa-people-arrows"></i> Social Distancing</h4>
+            <div id="socialDistancingInfo">
+              <p style="color: #999; font-size: 0.9rem">
+                Violations: <span id="sdViolations">0</span>
+              </p>
+              <p style="color: #999; font-size: 0.9rem">Min Distance: 50px</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      let updateInterval;
+      let restrictedZones = new Set();
+      let circlesData = []; // array of {cx, cy, radius} in normalized 0-1 coords
+      let previousAlertState = {
+          thresholdViolation: false,
+          restrictedCircleActive: false,
+          gateDetections: new Set()
+      };
+
+      // Circle drawing state
+      let isDrawingCircle = false;
+      let circleStartX = 0, circleStartY = 0;
+      let drawModeActive = false;
+      let circleBlinkOn = false;
+      let circleBlinkInterval = null;
+      let lastCircleCount = 0;
+
+      // Audio Alert System
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+      let audioEnabled = true;
+      let continuousBeepInterval = null;
+      let isBeeping = false;
+
+      function playBeep(frequency = 1000, duration = 500) {
+          if (!audioEnabled) return;
+
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          
+          gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration / 1000);
+          
+          oscillator.start(audioContext.currentTime);
+          oscillator.stop(audioContext.currentTime + duration / 1000);
+      }
+
+      function startContinuousBeep(frequency = 1500, interval = 1000) {
+          if (isBeeping || !audioEnabled) return;
+          
+          isBeeping = true;
+          document.getElementById('stopBeepBtn').style.display = 'inline-flex';
+          
+          // Play beep immediately
+          playBeep(frequency, 400);
+          
+          // Continue beeping at specified interval
+          continuousBeepInterval = setInterval(() => {
+              playBeep(frequency, 400);
+          }, interval);
+      }
+
+      function stopContinuousBeep() {
+          if (continuousBeepInterval) {
+              clearInterval(continuousBeepInterval);
+              continuousBeepInterval = null;
+          }
+          isBeeping = false;
+          document.getElementById('stopBeepBtn').style.display = 'none';
+      }
+
+      function speak(text) {
+          if (!audioEnabled || !('speechSynthesis' in window)) return;
+          
+          const utterance = new SpeechSynthesisUtterance(text);
+          utterance.rate = 1.0;
+          utterance.pitch = 1.0;
+          utterance.volume = 0.8;
+          speechSynthesis.speak(utterance);
+      }
+
+      function checkAndPlayAlerts(zoneData) {
+          const filterEnabled = document.getElementById('filterEnabled').checked;
+          const minCount = parseInt(document.getElementById('minCount').value);
+          const maxCount = parseInt(document.getElementById('maxCount').value);
+          const totalCount = zoneData.total || 0;
+
+          let hasViolation = false;
+
+          // Check threshold violation
+          if (filterEnabled && (totalCount > maxCount || totalCount < minCount)) {
+              if (!previousAlertState.thresholdViolation) {
+                  speak(`Alert! Crowd count ${totalCount} is outside threshold range`);
+                  previousAlertState.thresholdViolation = true;
+              }
+              hasViolation = true;
+          } else {
+              previousAlertState.thresholdViolation = false;
+          }
+
+          // Check restricted circle violations — CRITICAL: even 1 person triggers high alert
+          const circleCount = zoneData.restricted_circle_count || 0;
+          if (circlesData.length > 0 && circleCount > 0) {
+              if (!previousAlertState.restrictedCircleActive) {
+                  // Immediate loud high-pitch beep burst
+                  playBeep(2500, 800);
+                  setTimeout(() => playBeep(2800, 600), 300);
+                  speak(`CRITICAL ALERT! ${circleCount} ${circleCount === 1 ? 'person has' : 'people have'} entered the restricted area! Immediate attention required!`);
+                  previousAlertState.restrictedCircleActive = true;
+              }
+              hasViolation = true;
+              // Use high-frequency rapid beep for circle intrusion
+              if (!isBeeping) {
+                  startContinuousBeep(2500, 600);
+              }
+          } else {
+              if (previousAlertState.restrictedCircleActive) {
+                  // Circle just cleared — stop the rapid beep
+                  stopContinuousBeep();
+              }
+              previousAlertState.restrictedCircleActive = false;
+          }
+
+          // Start or stop continuous beep based on violations
+          if (hasViolation && !isBeeping) {
+              startContinuousBeep(1800);
+          } else if (!hasViolation && isBeeping) {
+              stopContinuousBeep();
+          }
+      }
+
+      function checkGateAlerts() {
+          fetch('/api/gate-control')
+              .then(response => response.json())
+              .then(data => {
+                  if (data.enabled && data.gates) {
+                      Object.entries(data.gates).forEach(([gateId, gateInfo]) => {
+                          // Alert if gate was just closed automatically
+                          if (gateInfo.status === 'closed' && gateInfo.last_action_reason === 'auto') {
+                              const alertKey = `${gateId}_closed`;
+                              if (!previousAlertState.gateDetections.has(alertKey)) {
+                                  playBeep(1800, 700);
+                                  speak(`Gate ${gateInfo.name} has been automatically closed due to high crowd density`);
+                                  previousAlertState.gateDetections.add(alertKey);
+                                  
+                                  // Remove after 10 seconds to allow re-alerting
+                                  setTimeout(() => {
+                                      previousAlertState.gateDetections.delete(alertKey);
+                                  }, 10000);
+                              }
+                          }
+                      });
+                  }
+              })
+              .catch(error => console.error('Error checking gate alerts:', error));
+      }
+
+      // Grid config state
+      let gridRows = 3, gridCols = 3;
+
+      function fetchGridConfig() {
+        return fetch('/api/grid-config')
+          .then(r => r.json())
+          .then(data => {
+            gridRows = data.rows || 3;
+            gridCols = data.cols || 3;
+            const total = gridRows * gridCols;
+            // Dynamically set grid columns based on configured cols
+            const zoneGrid = document.getElementById('zoneGrid');
+            const colCount = Math.min(gridCols, 10);
+            zoneGrid.style.gridTemplateColumns = `repeat(${colCount}, 1fr)`;
+            // Compact mode for many zones
+            if (total > 25) {
+              zoneGrid.style.gap = '3px';
+              document.querySelectorAll('.zone').forEach(z => {
+                z.style.padding = '0.3rem 0.2rem';
+                z.style.fontSize = '0.65rem';
+              });
+            }
+            // Update info text
+            const info = document.getElementById('zoneGridInfo');
+            if (info) info.textContent = `${gridRows}×${gridCols} grid (${total} zones)`;
+          })
+          .catch(e => console.error('Grid config error:', e));
+      }
+
+      function updateZoneData() {
+        return fetch("/api/zones")
+          .then((response) => response.json())
+          .then((data) => {
+            document.getElementById("totalCount").textContent = data.total || 0;
+            const zoneGrid = document.getElementById("zoneGrid");
+            zoneGrid.innerHTML = "";
+
+            const filterEnabled =
+              document.getElementById("filterEnabled").checked;
+            const minCount = parseInt(
+              document.getElementById("minCount").value,
+            );
+            const maxCount = parseInt(
+              document.getElementById("maxCount").value,
+            );
+
+            const totalZones = gridRows * gridCols;
+            const isCompact = totalZones > 25;
+
+            if (data.zones && data.zones.length > 0) {
+              data.zones.forEach((zone) => {
+                const zoneDiv = document.createElement("div");
+                const count = zone.count || 0;
+                const inRange =
+                  !filterEnabled || (count >= minCount && count <= maxCount);
+
+                zoneDiv.className = `zone ${String(zone.level).toLowerCase()}`;
+                zoneDiv.style.opacity = inRange ? "1" : "0.3";
+                if (isCompact) {
+                  zoneDiv.style.padding = '0.3rem 0.2rem';
+                  zoneDiv.style.fontSize = '0.65rem';
+                  zoneDiv.style.borderRadius = '6px';
+                  zoneDiv.innerHTML = `
+                    <div style="font-size:0.7rem;font-weight:700;">${zone.id}</div>
+                    <div style="font-size:0.6rem;">${count}</div>
+                  `;
+                } else {
+                  zoneDiv.innerHTML = `
+                    <div style="font-size: 0.85rem; margin-bottom: 0.2rem;">${zone.id}</div>
+                    <div style="font-size: 0.75rem;">${zone.level}</div>
+                    <div style="font-size: 0.85rem; margin-top: 0.2rem;">(${count})</div>
+                  `;
+                }
+                zoneGrid.appendChild(zoneDiv);
+              });
+            } else {
+              zoneGrid.innerHTML = `<div style="grid-column: 1 / -1; text-align: center; color: #999; padding: 1rem;">No zone data yet</div>`;
+            }
+
+            // Update circle count indicator
+            const rcCount = data.restricted_circle_count || 0;
+            lastCircleCount = rcCount;
+            const indicator = document.getElementById('circleCountIndicator');
+            const countText = document.getElementById('circleCountText');
+            if (circlesData.length > 0) {
+                indicator.style.display = 'block';
+                if (rcCount > 0) {
+                    countText.innerHTML = `<strong style="color:#dc3545">${rcCount} ${rcCount === 1 ? 'person' : 'people'} in restricted area!</strong>`;
+                    startCircleBlink();
+                } else {
+                    countText.innerHTML = `<span style="color:#22c55e">Restricted area clear</span>`;
+                    stopCircleBlink();
+                }
+            } else {
+                indicator.style.display = 'none';
+                stopCircleBlink();
+            }
+
+            // Check and play alerts
+            checkAndPlayAlerts(data);
+          })
+          .catch((error) => console.error("Error fetching zone data:", error));
+      }
+
+      function updateAlerts() {
+        return fetch("/api/alerts?limit=5")
+          .then((response) => response.json())
+          .then((data) => {
+            const alertsList = document.getElementById("alertsList");
+            const alerts = Array.isArray(data.alerts) ? data.alerts : [];
+            if (alerts.length > 0) {
+              alertsList.innerHTML = alerts
+                .map(
+                  (a) => `
+                            <div class="alert-item">
+                                <i class="fas fa-exclamation-triangle" style="color: #dc3545; margin-right: 0.5rem;"></i>
+                                [${a.timestamp}] ${a.message}
+                            </div>
+                        `,
+                )
+                .join("");
+            } else {
+              alertsList.innerHTML = `<div style="text-align: center; color: #999; padding: 2rem;"><i class="fas fa-bell-slash"></i><p>No alerts yet</p></div>`;
+            }
+          })
+          .catch((error) => console.error("Error fetching alerts:", error));
+      }
+
+      function updateGateControl() {
+        fetch("/api/gate-control")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.enabled && data.gates) {
+              const gatesList = document.getElementById("gatesList");
+              gatesList.innerHTML = "";
+              Object.entries(data.gates).forEach(([gateId, gateInfo]) => {
+                const gateDiv = document.createElement("div");
+                gateDiv.className = "gate-status";
+                gateDiv.innerHTML = `
+                                <span>${gateInfo.name}: <strong style="color:${gateInfo.status === "open" ? "#10b981" : "#dc3545"}">${gateInfo.status.toUpperCase()}</strong></span>
+                                <div>
+                                    <button class="gate-btn open" onclick="controlGate('${gateId}', 'open')">Open</button>
+                                    <button class="gate-btn close" onclick="controlGate('${gateId}', 'close')">Close</button>
+                                </div>
+                            `;
+                gatesList.appendChild(gateDiv);
+              });
+            }
+          })
+          .catch((error) =>
+            console.error("Error fetching gate control:", error),
+          );
+      }
+
+      function updateSocialDistancing() {
+        fetch("/api/social-distancing")
+          .then((response) => response.json())
+          .then((data) => {
+            if (data.enabled && data.summary) {
+              document.getElementById("sdViolations").textContent =
+                data.summary.total_violations || 0;
+            }
+          })
+          .catch((error) =>
+            console.error("Error fetching social distancing:", error),
+          );
+      }
+
+      function updateThresholdFilter() {
+        const enabled = document.getElementById("filterEnabled").checked;
+        const minCount = parseInt(document.getElementById("minCount").value);
+        const maxCount = parseInt(document.getElementById("maxCount").value);
+
+        document.getElementById("minCountValue").textContent = minCount;
+        document.getElementById("maxCountValue").textContent = maxCount;
+
+        fetch("/api/threshold-filter", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            enabled,
+            min_count: minCount,
+            max_count: maxCount,
+          }),
+        }).then(() => updateZoneData());
+      }
+
+      // ===== Draw mode toggle =====
+      function toggleDrawMode() {
+          drawModeActive = !drawModeActive;
+          const canvas = document.getElementById('circleCanvas');
+          const btn = document.getElementById('drawModeBtn');
+          const drawText = document.getElementById('drawText');
+          const drawIcon = document.getElementById('drawIcon');
+          if (drawModeActive) {
+              canvas.classList.add('draw-active');
+              btn.style.background = 'linear-gradient(45deg, #22c55e, #16a34a)';
+              drawText.textContent = 'Done Drawing';
+              drawIcon.className = 'fas fa-check';
+          } else {
+              canvas.classList.remove('draw-active');
+              btn.style.background = 'linear-gradient(45deg, #ef4444, #dc2626)';
+              drawText.textContent = 'Draw Circles';
+              drawIcon.className = 'fas fa-pen';
+          }
+      }
+
+      // ===== Circle drawing on canvas =====
+      function setupCircleCanvas() {
+        const canvas = document.getElementById('circleCanvas');
+        const videoFeed = document.getElementById('videoFeed');
+        if (!canvas || !videoFeed) return;
+
+        function resizeCanvas() {
+          canvas.width = videoFeed.clientWidth;
+          canvas.height = videoFeed.clientHeight;
+          drawCircleOverlay();
+        }
+
+        videoFeed.addEventListener('load', resizeCanvas);
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        canvas.addEventListener('mousedown', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          circleStartX = e.clientX - rect.left;
+          circleStartY = e.clientY - rect.top;
+          isDrawingCircle = true;
+        });
+
+        canvas.addEventListener('mousemove', (e) => {
+          if (!isDrawingCircle) return;
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          const dx = mx - circleStartX;
+          const dy = my - circleStartY;
+          const r = Math.sqrt(dx * dx + dy * dy);
+          // Redraw existing + preview
+          drawCircleOverlay();
+          const ctx = canvas.getContext('2d');
+          ctx.beginPath();
+          ctx.arc(circleStartX, circleStartY, r, 0, Math.PI * 2);
+          ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+          ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+          ctx.fill();
+        });
+
+        canvas.addEventListener('mouseup', (e) => {
+          if (!isDrawingCircle) return;
+          isDrawingCircle = false;
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          const dx = mx - circleStartX;
+          const dy = my - circleStartY;
+          const r = Math.sqrt(dx * dx + dy * dy);
+          if (r < 10) return; // too small
+
+          const maxDim = Math.max(canvas.width, canvas.height);
+          const newCircle = {
+            cx: circleStartX / canvas.width,
+            cy: circleStartY / canvas.height,
+            radius: r / maxDim
+          };
+          circlesData.push(newCircle);
+          sendCircleToBackend(newCircle);
+          drawCircleOverlay();
+          updateRestrictedZonesList();
+        });
+
+        // Double-click to remove a circle
+        canvas.addEventListener('dblclick', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          const mx = e.clientX - rect.left;
+          const my = e.clientY - rect.top;
+          // Find which circle was clicked (last drawn = on top, check reverse)
+          for (let i = circlesData.length - 1; i >= 0; i--) {
+            const circ = circlesData[i];
+            const cx = circ.cx * canvas.width;
+            const cy = circ.cy * canvas.height;
+            const r = circ.radius * Math.max(canvas.width, canvas.height);
+            const dist = Math.sqrt((mx - cx) ** 2 + (my - cy) ** 2);
+            if (dist <= r) {
+              circlesData.splice(i, 1);
+              // Sync full list to backend
+              fetch('/api/restricted-circle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ action: 'set', circles: circlesData })
+              });
+              drawCircleOverlay();
+              updateRestrictedZonesList();
+              return;
+            }
+          }
+        });
+      }
+
+      function drawCircleOverlay() {
+        const canvas = document.getElementById('circleCanvas');
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        if (!circlesData.length) return;
+        const alertActive = lastCircleCount > 0;
+        circlesData.forEach((circ, idx) => {
+          const cx = circ.cx * canvas.width;
+          const cy = circ.cy * canvas.height;
+          const r = circ.radius * Math.max(canvas.width, canvas.height);
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          if (alertActive && circleBlinkOn) {
+            ctx.strokeStyle = 'rgba(255, 0, 0, 1)';
+            ctx.lineWidth = 5;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.45)';
+          } else if (alertActive) {
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.9)';
+            ctx.lineWidth = 4;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.10)';
+          } else {
+            ctx.strokeStyle = 'rgba(255, 0, 0, 0.8)';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = 'rgba(255, 0, 0, 0.15)';
+          }
+          ctx.fill();
+          ctx.font = 'bold 13px Segoe UI';
+          ctx.fillStyle = alertActive ? 'rgba(255, 30, 30, 1)' : 'rgba(255, 0, 0, 0.9)';
+          ctx.fillText(`\u{1F6AB} #${idx+1}`, cx - 25, cy - r - 8);
+        });
+      }
+
+      function startCircleBlink() {
+        if (circleBlinkInterval) return;
+        circleBlinkInterval = setInterval(() => {
+          circleBlinkOn = !circleBlinkOn;
+          drawCircleOverlay();
+        }, 400);
+      }
+
+      function stopCircleBlink() {
+        if (circleBlinkInterval) {
+          clearInterval(circleBlinkInterval);
+          circleBlinkInterval = null;
+        }
+        circleBlinkOn = false;
+        drawCircleOverlay();
+      }
+
+      function sendCircleToBackend(circle) {
+        fetch('/api/restricted-circle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'add', ...circle })
+        });
+      }
+
+      function updateRestrictedZonesList() {
+        const list = document.getElementById("restrictedZonesList");
+        if (circlesData.length > 0) {
+          list.innerHTML = `<strong style="color:#dc3545">\u2b55 ${circlesData.length} circle(s) active</strong> — drag on video to add more`;
+          list.style.color = "#dc3545";
+        } else {
+          list.innerHTML = "Click & drag on the video feed to draw restriction circles";
+          list.style.color = "#999";
+        }
+      }
+
+      function clearRestrictedCircle() {
+        circlesData = [];
+        fetch('/api/restricted-circle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'clear' })
+        }).then(() => {
+          drawCircleOverlay();
+          updateRestrictedZonesList();
+          updateZoneData();
+        });
+      }
+
+      function controlGate(gateId, action) {
+        fetch("/api/gate-control", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action, gate_id: gateId }),
+        }).then(() => updateGateControl());
+      }
+
+      function emergencyCloseAll() {
+        if (confirm("Emergency close all gates?")) {
+          fetch("/api/gate-control", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "emergency_close_all" }),
+          }).then(() => updateGateControl());
+        }
+      }
+
+      function startCamera() {
+        const startBtn = document.getElementById("startBtn");
+        const originalHTML = startBtn.innerHTML;
+        startBtn.innerHTML = '<div class="loading"></div> Starting...';
+        startBtn.disabled = true;
+
+        fetch("/api/start")
+          .then((response) => response.json())
+          .then((data) => {
+            const status = document.getElementById("status");
+            const videoFeed = document.getElementById("videoFeed");
+            const videoError = document.getElementById("videoError");
+            if (data.status === "started" || data.status === "already_active") {
+              status.innerHTML =
+                '<i class="fas fa-circle" style="color: #28a745;"></i> Camera Active - Live monitoring in progress';
+              status.className = "status connected";
+              videoFeed.style.display = "block";
+              videoError.style.display = "none";
+              videoFeed.src = "/video_feed?" + new Date().getTime();
+              startUpdates();
+            } else {
+              status.innerHTML =
+                '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Failed to start camera';
+              status.className = "status disconnected";
+            }
+          })
+          .catch((error) => {
+            console.error("Error starting camera:", error);
+            document.getElementById("status").innerHTML =
+              '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Error starting camera';
+            document.getElementById("status").className = "status disconnected";
+          })
+          .finally(() => {
+            startBtn.innerHTML = originalHTML;
+            startBtn.disabled = false;
+          });
+      }
+
+      function stopCamera() {
+        const stopBtn = document.getElementById("stopBtn");
+        const originalHTML = stopBtn.innerHTML;
+        stopBtn.innerHTML = '<div class="loading"></div> Stopping...';
+        stopBtn.disabled = true;
+
+        fetch("/api/stop")
+          .then((response) => response.json())
+          .then((data) => {
+            const status = document.getElementById("status");
+            const videoFeed = document.getElementById("videoFeed");
+            const videoError = document.getElementById("videoError");
+            status.innerHTML =
+              '<i class="fas fa-circle" style="color: #6c757d;"></i> Camera Ready - Click Start Camera to begin monitoring';
+            status.className = "status disconnected";
+            videoFeed.style.display = "none";
+            videoError.style.display = "block";
+            stopUpdates();
+          })
+          .catch((error) => console.error("Error stopping camera:", error))
+          .finally(() => {
+            stopBtn.innerHTML = originalHTML;
+            stopBtn.disabled = false;
+          });
+      }
+
+      function refreshData() {
+        const refreshBtn = document.getElementById("refreshBtn");
+        const originalHTML = refreshBtn.innerHTML;
+        refreshBtn.innerHTML = '<div class="loading"></div> Refreshing...';
+        refreshBtn.disabled = true;
+
+        Promise.all([
+          updateZoneData(),
+          updateAlerts(),
+          updateGateControl(),
+          updateSocialDistancing(),
+        ]).finally(() => {
+          setTimeout(() => {
+            refreshBtn.innerHTML = originalHTML;
+            refreshBtn.disabled = false;
+          }, 600);
+        });
+      }
+
+      // ===== GATE STATUS BAR LOGIC =====
+      let _prevGateStates = {};   // { gateId: 'open'|'closed' }
+      let _gateCloseThreshold = 2;
+      let _gateOpenThreshold  = 1;
+      let _gateStatusInterval = null;
+
+      function showToast(iconHtml, title, subtitle, cssClass, durationMs = 5000) {
+        const container = document.getElementById('toastContainer');
+        const toast = document.createElement('div');
+        toast.className = `toast ${cssClass}`;
+        toast.innerHTML = `
+          <div class="toast-icon">${iconHtml}</div>
+          <div class="toast-body"><strong>${title}</strong><span>${subtitle}</span></div>
+        `;
+        container.appendChild(toast);
+        setTimeout(() => {
+          toast.style.animation = 'toastOut 0.3s ease forwards';
+          setTimeout(() => toast.remove(), 320);
+        }, durationMs);
+      }
+
+      function updateGateStatusBar(data) {
+        const pillsEl    = document.getElementById('gatePills');
+        const barWrap    = document.getElementById('thresholdBarWrap');
+        const barFill    = document.getElementById('thresholdBarFill');
+        const barLabel   = document.getElementById('thresholdLabel');
+        const barPct     = document.getElementById('thresholdPct');
+        const statusBar  = document.getElementById('gateStatusBar');
+
+        if (!data.enabled || !data.gates) {
+          pillsEl.innerHTML = '<span style="color:#555;font-size:0.78rem;">Gate control disabled</span>';
+          barWrap.style.display = 'none';
+          return;
+        }
+
+        _gateCloseThreshold = data.auto_close_threshold || 2;
+        _gateOpenThreshold  = data.auto_open_threshold  || 1;
+
+        // Current crowd count from the zone data (read from DOM)
+        const currentCount = parseInt(document.getElementById('totalCount').textContent) || 0;
+
+        // Rebuild pills
+        pillsEl.innerHTML = '';
+        let anyGateClosed = false;
+        Object.entries(data.gates).forEach(([gateId, gateInfo]) => {
+          const statusClass = gateInfo.status === 'open' ? 'open' : 'closed';
+          if (gateInfo.status === 'closed') anyGateClosed = true;
+
+          const pill = document.createElement('span');
+          pill.className = `gate-pill ${statusClass}`;
+          const icon = gateInfo.status === 'open' ? '🟢' : '🔴';
+          pill.innerHTML = `<span class="gate-dot"></span>${gateInfo.name}: <b>${gateInfo.status.toUpperCase()}</b>`;
+          pillsEl.appendChild(pill);
+
+          // Detect state change → show toast
+          const prev = _prevGateStates[gateId];
+          if (prev !== undefined && prev !== gateInfo.status) {
+            const reason = gateInfo.last_action_reason || 'manual';
+            if (gateInfo.status === 'closed') {
+              showToast('🚪', `${gateInfo.name} CLOSED`, `Reason: ${reason} · Count: ${currentCount}`, 'gate-closed');
+              if (audioEnabled) {
+                playBeep(1800, 700);
+                speak(`${gateInfo.name} has been closed. Crowd count is ${currentCount}.`);
+              }
+            } else {
+              showToast('🟢', `${gateInfo.name} OPENED`, `Reason: ${reason} · Count: ${currentCount}`, 'gate-opened');
+              if (audioEnabled) speak(`${gateInfo.name} is now open.`);
+            }
+          }
+          _prevGateStates[gateId] = gateInfo.status;
+        });
+
+        // Status bar alert style
+        statusBar.classList.toggle('threshold-alert', anyGateClosed);
+
+        // Threshold progress bar
+        barWrap.style.display = 'flex';
+        const pct = Math.min(100, Math.round((currentCount / _gateCloseThreshold) * 100));
+        barFill.style.width = pct + '%';
+        barLabel.textContent = `Count: ${currentCount} / ${_gateCloseThreshold}`;
+        barPct.textContent = pct + '%';
+        barFill.className = 'threshold-bar-fill';
+        if (pct >= 100)      barFill.classList.add('danger');
+        else if (pct >= 70)  barFill.classList.add('warning');
+
+        // Threshold-hit toast (once per crossing)
+        if (currentCount >= _gateCloseThreshold && !_prevGateStates.__thresholdHit) {
+          showToast('⚠️', 'Threshold Reached!', `Count ${currentCount} ≥ close threshold ${_gateCloseThreshold}`, 'threshold-hit', 6000);
+          _prevGateStates.__thresholdHit = true;
+        } else if (currentCount < _gateCloseThreshold) {
+          _prevGateStates.__thresholdHit = false;
+        }
+      }
+
+      function refreshGateStatusBar() {
+        fetch('/api/gate-control')
+          .then(r => r.json())
+          .then(data => {
+            updateGateStatusBar(data);
+            // Also keep the gatesList widget in sync
+            if (data.enabled && data.gates) {
+              const gatesList = document.getElementById('gatesList');
+              if (gatesList) {
+                gatesList.innerHTML = '';
+                Object.entries(data.gates).forEach(([gateId, gateInfo]) => {
+                  const gateDiv = document.createElement('div');
+                  gateDiv.className = 'gate-status';
+                  gateDiv.innerHTML = `
+                    <span>${gateInfo.name}: <strong style="color:${gateInfo.status==='open'?'#10b981':'#dc3545'}">${gateInfo.status.toUpperCase()}</strong></span>
+                    <div>
+                      <button class="gate-btn open" onclick="controlGate('${gateId}','open')">Open</button>
+                      <button class="gate-btn close" onclick="controlGate('${gateId}','close')">Close</button>
+                    </div>`;
+                  gatesList.appendChild(gateDiv);
+                });
+              }
+            }
+          })
+          .catch(() => {});
+      }
+
+      function startGateStatusBar() {
+        if (_gateStatusInterval) clearInterval(_gateStatusInterval);
+        refreshGateStatusBar();
+        _gateStatusInterval = setInterval(refreshGateStatusBar, 2000);
+      }
+
+      function stopGateStatusBar() {
+        if (_gateStatusInterval) { clearInterval(_gateStatusInterval); _gateStatusInterval = null; }
+      }
+      // ===== END GATE STATUS BAR =====
+
+      function startUpdates() {
+        if (updateInterval) clearInterval(updateInterval);
+        updateInterval = setInterval(() => {
+          updateZoneData();
+          updateAlerts();
+          updateSocialDistancing();
+          checkGateAlerts();
+        }, 1000);
+        startGateStatusBar();
+      }
+
+      function stopUpdates() {
+        if (updateInterval) {
+          clearInterval(updateInterval);
+          updateInterval = null;
+        }
+        stopGateStatusBar();
+      }
+
+      function checkCameraStatus() {
+        fetch("/api/status")
+          .then((response) => response.json())
+          .then((data) => {
+            const status = document.getElementById("status");
+            const videoFeed = document.getElementById("videoFeed");
+            const videoError = document.getElementById("videoError");
+            if (data.camera_active) {
+              status.innerHTML =
+                '<i class="fas fa-circle" style="color: #28a745;"></i> Camera Active - Live monitoring in progress';
+              status.className = "status connected";
+              videoFeed.style.display = "block";
+              videoError.style.display = "none";
+              videoFeed.src = "/video_feed?" + new Date().getTime();
+              startUpdates();
+            } else {
+              status.innerHTML =
+                '<i class="fas fa-circle" style="color: #6c757d;"></i> Camera Ready - Click Start Camera to begin monitoring';
+              status.className = "status disconnected";
+              videoFeed.style.display = "none";
+              videoError.style.display = "block";
+            }
+          })
+          .catch((error) => {
+            console.error("Error checking camera status:", error);
+            document.getElementById("status").innerHTML =
+              '<i class="fas fa-exclamation-triangle" style="color: #dc3545;"></i> Error checking camera status';
+            document.getElementById("status").className = "status disconnected";
+          });
+      }
+
+        function toggleAudio() {
+            audioEnabled = !audioEnabled;
+            const audioBtn = document.getElementById('audioBtn');
+            const audioIcon = document.getElementById('audioIcon');
+            const audioText = document.getElementById('audioText');
+            
+            if (audioEnabled) {
+                audioIcon.className = 'fas fa-volume-up';
+                audioText.textContent = 'Audio: ON';
+                audioBtn.style.background = 'linear-gradient(45deg, #3b82f6, #2563eb)';
+            } else {
+                audioIcon.className = 'fas fa-volume-mute';
+                audioText.textContent = 'Audio: OFF';
+                audioBtn.style.background = 'linear-gradient(45deg, #6b7280, #4b5563)';
+            }
+        }
+
+      // Load restricted circles on startup
+      fetch("/api/restricted-circle")
+        .then((response) => response.json())
+        .then((data) => {
+          circlesData = data.circles || [];
+          updateRestrictedZonesList();
+          drawCircleOverlay();
+        });
+
+      document.getElementById("refreshLogo").onclick = function () {
+        window.location.reload();
+      };
+
+      window.onload = function () {
+        setupCircleCanvas();
+        fetchGridConfig().then(() => {
+          updateZoneData();
+          updateAlerts();
+          checkCameraStatus();
+          updateSocialDistancing();
+        });
+        // Always start gate status bar (works even when camera is off)
+        startGateStatusBar();
+      };
+      window.onbeforeunload = function () {
+        stopUpdates();
+      };
+    </script>
+  </body>
+</html>

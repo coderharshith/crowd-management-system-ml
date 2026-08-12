@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Crowd Monitoring</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #e6eef6;
+            /* light text on dark background */
+            background: radial-gradient(1200px 600px at 10% 10%, #0b0f14 0%, #07080a 30%, #000000 100%);
+            min-height: 100vh;
+        }
+
+        .navbar {
+            background: rgba(10, 14, 18, 0.9);
+            /* dark translucent nav */
+            backdrop-filter: blur(6px);
+            padding: 1rem 0;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 6px 30px rgba(0, 0, 0, 0.6);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #7ee3b4;
+            /* soft green accent */
+            cursor: pointer;
+            letter-spacing: 0.2px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: #dff7ea;
+            font-weight: 500;
+            transition: color 0.2s;
+            opacity: 0.95;
+        }
+
+        .nav-links a:hover {
+            color: #8fe6b8;
+            opacity: 1;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1.25rem;
+            border: 1px solid transparent;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.18s ease;
+            color: #e6eef6;
+            background: transparent;
+        }
+
+        .btn-primary {
+            background: linear-gradient(90deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 6px 18px rgba(16, 185, 129, 0.14);
+        }
+
+        .btn-outline {
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #dff7ea;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .btn-inline {
+            border: 2px solid #10b981;
+            color: white;
+            background: transparent;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(10, 14, 18, 0.6);
+        }
+
+        .hero {
+            margin-top: 80px;
+            padding: 5rem 2rem;
+            text-align: center;
+            color: #e6eef6;
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            margin-bottom: 0.6rem;
+            animation: fadeInUp 0.9s ease;
+            color: #ffffff;
+            text-shadow: 0 6px 20px rgba(0, 0, 0, 0.6);
+        }
+
+        .hero p {
+            font-size: 1.05rem;
+            margin-bottom: 2rem;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
+            animation: fadeInUp 0.9s ease 0.15s both;
+            color: #dff7ea;
+            opacity: 0.92;
+        }
+
+        .hero-buttons {
+            animation: fadeInUp 1s ease 0.4s both;
+        }
+
+        .hero-buttons .btn {
+            margin: 0 0.6rem;
+            padding: 0.85rem 1.6rem;
+            font-size: 1.02rem;
+            border-radius: 12px;
+        }
+
+        .features {
+            padding: 4.5rem 2rem;
+            background: transparent;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 2.2rem;
+            margin-bottom: 2.2rem;
+            color: #e6eef6;
+            letter-spacing: 0.2px;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .feature-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            padding: 1.6rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(3, 6, 10, 0.6);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .feature-icon {
+            font-size: 2.6rem;
+            color: #7ee3b4;
+            margin-bottom: 0.9rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 0.6rem;
+            color: #ffffff;
+        }
+
+        .feature-card p {
+            color: #dff7ea;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .how-it-works {
+            padding: 4.5rem 2rem;
+            background: transparent;
+        }
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .step-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            padding: 1.6rem;
+            border-radius: 12px;
+            text-align: center;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(3, 6, 10, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .step-number {
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: linear-gradient(45deg, #10b981, #059669);
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .tech-stack {
+            padding: 4.5rem 2rem;
+            background: transparent;
+        }
+
+        .tech-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tech-item {
+            text-align: center;
+            padding: 1.4rem;
+            border-radius: 10px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(255, 255, 255, 0.01));
+            transition: transform 0.18s;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+
+        .tech-item:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 14px 40px rgba(5, 8, 12, 0.6);
+        }
+
+        .tech-item i {
+            font-size: 3rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+
+        /* Crowd-like animated background for hero */
+        .hero {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* legacy subtle dots (kept for depth) */
+        .crowd-animation {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .crowd-dot {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(16, 185, 129, 0.9);
+            box-shadow: 0 4px 8px rgba(6, 120, 87, 0.18);
+            opacity: 0.9;
+            transform: translateY(0);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(30vh) scale(0.8);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.6;
+            }
+
+            100% {
+                transform: translateY(-10vh) scale(1);
+                opacity: 0;
+            }
+        }
+
+        .crowd-dot.animate {
+            animation: floatUp var(--d, 8s) linear infinite;
+        }
+
+        /* New AI-style crowd overlay: moving person icons + detection boxes */
+        .crowd-overlay {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 1; /* above dots but behind hero text */
+        }
+
+        .crowd-person {
+            position: absolute;
+            transform: translate(-50%, -50%);
+            color: rgba(255,255,255,0.95);
+            font-size: 14px;
+            opacity: 0.95;
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.6));
+        }
+
+        .crowd-person i {
+            display: inline-block;
+            font-size: 18px;
+            color: #dff7ea;
+            transform-origin: center;
+        }
+
+        .person-move {
+            animation-name: personMove;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+        }
+
+        @keyframes personMove {
+            0% { transform: translate(-50%, -50%) translateX(-10vw) translateY(0); }
+            50% { transform: translate(-50%, -50%) translateX(10vw) translateY(-2vh); }
+            100% { transform: translate(-50%, -50%) translateX(-10vw) translateY(0); }
+        }
+
+        .detection-box {
+            position: absolute;
+            border: 2px solid rgba(16,185,129,0.95);
+            border-radius: 6px;
+            pointer-events: none;
+            box-shadow: 0 8px 24px rgba(16,185,129,0.06);
+            opacity: 0;
+            transform: scale(0.96);
+            transition: opacity 180ms ease, transform 180ms ease;
+        }
+
+        .detection-box.active {
+            opacity: 1;
+            transform: scale(1);
+            animation: pulseBox 900ms ease-in-out infinite;
+        }
+
+        @keyframes pulseBox {
+            0% { box-shadow: 0 8px 30px rgba(16,185,129,0.06); }
+            50% { box-shadow: 0 18px 40px rgba(16,185,129,0.12); }
+            100% { box-shadow: 0 8px 30px rgba(16,185,129,0.06); }
+        }
+
+        .detection-label {
+            position: absolute;
+            background: rgba(16,185,129,0.12);
+            color: #dff7ea;
+            border: 1px solid rgba(16,185,129,0.18);
+            padding: 2px 8px;
+            font-size: 12px;
+            border-radius: 999px;
+            top: -22px;
+            right: -2px;
+            white-space: nowrap;
+            opacity: 0;
+            transform: translateY(-4px);
+            transition: opacity 140ms ease, transform 140ms ease;
+        }
+
+        .detection-label.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* keep text and buttons above overlay */
+        .hero .container {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* respects user reduced motion preferences */
+        @media (prefers-reduced-motion: reduce) {
+            .crowd-dot.animate, .person-move { animation: none !important; }
+            .detection-box.active { animation: none !important; }
+        }
+
+        /* subtle feature card hover */
+        .feature-card {
+            transition: transform 0.35s, box-shadow 0.35s;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-12px) scale(1.01);
+            box-shadow: 0 18px 50px rgba(2, 6, 10, 0.6);
+        }
+
+        .cta {
+            padding: 3.5rem 2rem;
+            background: linear-gradient(90deg, rgba(10, 14, 18, 0.4), rgba(6, 8, 10, 0.35));
+            text-align: center;
+            color: #e6eef6;
+        }
+
+        .cta h2 {
+            font-size: 1.6rem;
+            margin-bottom: 0.6rem;
+            color: #ffffff;
+        }
+
+        .cta p {
+            font-size: 1rem;
+            margin-bottom: 1.6rem;
+            max-width: 680px;
+            margin-left: auto;
+            margin-right: auto;
+            color: #dff7ea;
+            opacity: 0.95;
+        }
+
+        .footer {
+            background: transparent;
+            color: #9fead0;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .mobile-menu {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu {
+                display: block;
+                background: none;
+                border: none;
+                font-size: 1.5rem;
+                color: #333;
+            }
+
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1rem;
+            }
+
+            .hero-buttons .btn {
+                display: block;
+                margin: 1rem 0;
+            }
+
+            .nav-container {
+                padding: 0 1rem;
+            }
+        }
+
+        .flash-messages {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            z-index: 1001;
+        }
+
+        .flash-message {
+            padding: 1rem 1.5rem;
+            margin-bottom: 1rem;
+            border-radius: 5px;
+            animation: slideIn 0.3s ease;
+        }
+
+        .flash-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .flash-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .flash-info {
+            background: #d1ecf1;
+            color: #0c5460;
+            border: 1px solid #bee5eb;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+            }
+
+            to {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="logo" id="refreshLogo">
+                <i class="fas fa-video"></i> Crowd Monitoring
+            </div>
+            <ul class="nav-links">
+                <li><a href="#home">Home</a></li>
+                <li><a href="#features">Features</a></li>
+                <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#technology">Technology</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <a href="{{ url_for('login') }}" class="btn btn-outline">Login</a>
+                <a href="{{ url_for('register') }}" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-messages">
+        {% for category, message in messages %}
+        <div class="flash-message flash-{{ category }}">
+            {{ message }}
+            <button onclick="this.parentElement.remove()"
+                style="float: right; background: none; border: none; font-size: 1.2rem; cursor: pointer;">&times;</button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    <section id="home" class="hero">
+        <div class="container">
+            <h1>Live Crowd Flow Monitoring</h1>
+            <p>AI-driven people-flow visualization and zone-aware alerts — track movement patterns, detect congestion,
+                and manage space in real time.</p>
+            <div class="hero-buttons">
+                <a href="{{ url_for('register') }}" class="btn btn-primary">
+                    <i class="fas fa-rocket"></i> Start Monitoring
+                </a>
+                <a href="#features" class="btn btn-inline">
+                    <i class="fas fa-info-circle"></i> Learn More
+                </a>
+            </div>
+        </div>
+        <!-- animated crowd: subtle dots + AI-like person overlay with detection boxes -->
+        <div class="crowd-animation" aria-hidden="true">
+            <!-- deep background dots for depth -->
+            <span class="crowd-dot animate" style="left:8%; bottom:-10%; --d:9s; width:9px; height:9px;"></span>
+            <span class="crowd-dot animate" style="left:22%; bottom:-5%; --d:11s; width:7px; height:7px;"></span>
+            <span class="crowd-dot animate" style="left:36%; bottom:-12%; --d:8.2s; width:10px; height:10px;"></span>
+            <span class="crowd-dot animate" style="left:52%; bottom:-8%; --d:10.1s; width:8px; height:8px;"></span>
+            <span class="crowd-dot animate" style="left:68%; bottom:-6%; --d:9.6s; width:9px; height:9px;"></span>
+            <span class="crowd-dot animate" style="left:84%; bottom:-15%; --d:12s; width:7px; height:7px;"></span>
+        </div>
+
+        <div class="crowd-overlay" aria-hidden="true">
+            <!-- synthetic people; positions are percent-based to adapt to hero size -->
+            <div class="crowd-person person-move" style="left:12%; top:70%; animation-duration:12s; animation-delay:0s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:46px; height:64px; left:-22px; top:-68px;"><div class="detection-label">1</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:24%; top:78%; animation-duration:9s; animation-delay:1s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:44px; height:60px; left:-20px; top:-64px;"><div class="detection-label">2</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:36%; top:74%; animation-duration:11s; animation-delay:0.4s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:48px; height:66px; left:-24px; top:-70px;"><div class="detection-label">0</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:48%; top:80%; animation-duration:10s; animation-delay:0.7s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:50px; height:68px; left:-26px; top:-72px;"><div class="detection-label">3</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:60%; top:76%; animation-duration:13s; animation-delay:0.2s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:46px; height:64px; left:-22px; top:-68px;"><div class="detection-label">1</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:72%; top:82%; animation-duration:8.5s; animation-delay:0.9s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:44px; height:60px; left:-20px; top:-64px;"><div class="detection-label">2</div></div>
+            </div>
+            <div class="crowd-person person-move" style="left:84%; top:74%; animation-duration:12.5s; animation-delay:0.6s;">
+                <i class="fas fa-user"></i>
+                <div class="detection-box" style="width:48px; height:66px; left:-24px; top:-70px;"><div class="detection-label">0</div></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <h2 class="section-title">Key Features</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-eye"></i>
+                    </div>
+                    <h3>Real-Time Detection</h3>
+                    <p>Instant crowd density analysis with live video streaming. Get immediate insights into crowd
+                        patterns and behavior with millisecond response times.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-th"></i>
+                    </div>
+                    <h3>Zone-Based Analysis</h3>
+                    <p>Intelligent 3x3 grid system divides your space into manageable zones. Each zone provides
+                        independent density metrics and customizable alert thresholds.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <h3>Smart Alerts</h3>
+                    <p>Automated alert system with configurable thresholds. Receive instant notifications when crowd
+                        density reaches critical levels in any zone.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Analytics Dashboard</h3>
+                    <p>Comprehensive dashboard with real-time statistics, historical data, and predictive insights.
+                        Export reports and analyze crowd patterns over time.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Responsive Design</h3>
+                    <p>Fully responsive interface that works seamlessly across desktop, tablet, and mobile devices.
+                        Monitor crowds from anywhere, anytime.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">
+                        <i class="fas fa-shield-alt"></i>
+                    </div>
+                    <h3>Secure & Private</h3>
+                    <p>Enterprise-grade security with user authentication, session management, and data encryption. Your
+                        monitoring data stays secure and private.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how-it-works" class="how-it-works">
+        <div class="container">
+            <h2 class="section-title">How It Works</h2>
+            <div class="steps-grid">
+                <div class="step-card">
+                    <div class="step-number">1</div>
+                    <h3>Camera Setup</h3>
+                    <p>Connect your camera and configure the monitoring area. Our system supports various camera types
+                        and automatically optimizes video quality for best detection results.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">2</div>
+                    <h3>AI Processing</h3>
+                    <p>Advanced YOLOv8 neural network analyzes each frame in real-time, detecting and counting people
+                        with 95%+ accuracy. The AI continuously learns and improves.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">3</div>
+                    <h3>Zone Analysis</h3>
+                    <p>The monitoring area is divided into a 3x3 grid system. Each zone is independently analyzed for
+                        crowd density levels: Low, Medium, High, and Critical.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">4</div>
+                    <h3>Alert Generation</h3>
+                    <p>When density thresholds are exceeded, the system generates instant alerts with visual and audio
+                        notifications. All alerts are logged for historical analysis.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="technology" class="tech-stack">
+        <div class="container">
+            <h2 class="section-title">Technology Stack</h2>
+            <div class="tech-grid">
+                <div class="tech-item">
+                    <i class="fab fa-python"></i>
+                    <h3>Python</h3>
+                    <p>Backend processing with Flask framework</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-brain"></i>
+                    <h3>YOLOv8</h3>
+                    <p>State-of-the-art object detection AI</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-video"></i>
+                    <h3>OpenCV</h3>
+                    <p>Computer vision and video processing</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fab fa-js-square"></i>
+                    <h3>JavaScript</h3>
+                    <p>Interactive frontend with real-time updates</p>
+                </div>
+                <div class="tech-item">
+                    <i class="fas fa-database"></i>
+                    <h3>Firebase</h3>
+                    <p>Cloud database and authentication</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="cta">
+        <div class="container">
+            <h2>Ready to Start Monitoring?</h2>
+            <a href="{{ url_for('register') }}" class="btn btn-outline" style="background: white; color: #10b981;">
+                <i class="fas fa-user-plus"></i> Create Free Account
+            </a>
+        </div>
+    </section>
+
+    <script>
+        // Auto-hide flash messages after 5 seconds
+        setTimeout(function () {
+            const flashMessages = document.querySelectorAll('.flash-message');
+            flashMessages.forEach(function (message) {
+                message.style.animation = 'slideOut 0.3s ease forwards';
+                setTimeout(function () {
+                    message.remove();
+                }, 300);
+            });
+        }, 5000);
+
+        // Smooth scrolling for navigation links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Add slide out animation
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideOut {
+                to {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Refresh on logo click (dashboard)
+        document.getElementById('refreshLogo')?.addEventListener('click', function () {
+            window.location.reload();
+        });
+
+        // --- Synthetic AI detection simulation (background overlay) ---
+        (function () {
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (prefersReduced) return; // don't run animations for users who prefer reduced motion
+
+            const persons = document.querySelectorAll('.crowd-overlay .crowd-person');
+            if (!persons || persons.length === 0) return;
+
+            function randInt(max) { return Math.floor(Math.random() * max); }
+
+            // occasionally toggle detection boxes on random people to simulate AI
+            setInterval(function () {
+                const idx = randInt(persons.length);
+                const p = persons[idx];
+                const box = p.querySelector('.detection-box');
+                const label = box && box.querySelector('.detection-label');
+                if (!box) return;
+
+                // small simulated count (0 sometimes to show no-detection)
+                const count = Math.random() < 0.12 ? 0 : (1 + randInt(3));
+                if (label) label.textContent = count;
+
+                box.classList.add('active');
+                if (label) label.classList.add('show');
+
+                // pop duration
+                const onFor = 500 + Math.random() * 900;
+                setTimeout(function () {
+                    box.classList.remove('active');
+                    if (label) label.classList.remove('show');
+                }, onFor);
+
+                // also nudge person's animation-duration occasionally to add variety
+                if (Math.random() < 0.25) {
+                    const base = 8 + Math.random() * 6;
+                    p.style.animationDuration = base.toFixed(2) + 's';
+                }
+            }, 800);
+        })();
+    </script>
+</body>
+
+</html>
