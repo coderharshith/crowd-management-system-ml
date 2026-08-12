@@ -7,7 +7,6 @@ A Python-based **AI-powered Crowd Management and Monitoring System** that uses c
 <video src="./demo.mp4" controls width="100%"></video>
 
 **Demo:** `demo.mp4`
-
 ---
 
 ## 📌 About the Project
